@@ -70,6 +70,27 @@ namespace LunchSplitTests
         }
 
         [TestMethod]
+        public void RoundShares_UnevenSplit_ReconcilesRemainder()
+        {
+            // Arrange
+            Rounder rounder = new Rounder();
+            decimal third = 10.00m / 3m;
+            List<Share> rawShares = new List<Share>();
+            rawShares.Add(new Share("Ana", third));
+            rawShares.Add(new Share("Ben", third));
+            rawShares.Add(new Share("Cam", third));
+
+            // Act
+            List<Share> roundedShares = rounder.RoundShares(rawShares, RoundingMode.Bankers);
+
+            // Assert
+            Assert.AreEqual(3.34m, roundedShares[0].Amount);
+            Assert.AreEqual(3.33m, roundedShares[1].Amount);
+            Assert.AreEqual(3.33m, roundedShares[2].Amount);
+            Assert.AreEqual(10.00m, roundedShares[0].Amount + roundedShares[1].Amount + roundedShares[2].Amount);
+        }
+
+        [TestMethod]
         public void RoundShares_EmptyShareCollection_ReturnsEmpty()
         {
             // Arrange
