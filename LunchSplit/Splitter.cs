@@ -1,8 +1,9 @@
 using System;
+using System.Collections.Generic;
 
 namespace LunchSplit
 {
-    // Calculates the tip from a bill subtotal.
+    // Calculates the tip and each person's share.
     public class Splitter
     {
         // Returns the tip. Percent uses a number like 15 for 15 percent.
@@ -37,6 +38,46 @@ namespace LunchSplit
             // Step 3: keep the tip in cents.
             tip = Math.Round(tip, 2);
             return tip;
+        }
+
+        // Splits the grand total. An excluded person gets $0.00.
+        public List<Share> CalculateShares(Bill bill, List<Attendee> attendees, RoundingMode roundingMode)
+        {
+            decimal tip = ComputeTip(bill.Subtotal, bill.TipMode, bill.TipInput);
+            decimal grandTotal = bill.Subtotal + bill.Tax + tip;
+
+            // Step 1: only included people with a weight count toward the split.
+            int totalWeight = 0;
+
+            for (int i = 0; i < attendees.Count; i++)
+            {
+                Attendee person = attendees[i];
+                if (person.Included && person.Weight > 0)
+                {
+                    totalWeight = totalWeight + person.Weight;
+                }
+            }
+
+            // Step 2: each included person gets their fraction of the total.
+            List<Share> rawShares = new List<Share>();
+
+            for (int i = 0; i < attendees.Count; i++)
+            {
+                Attendee person = attendees[i];
+                decimal amount = 0.00m;
+
+                if (person.Included && person.Weight > 0 && totalWeight > 0)
+                {
+                    amount = grandTotal * person.Weight / totalWeight;
+                }
+
+                rawShares.Add(new Share(person.Name, amount));
+            }
+
+            // Step 3: round the shares so they still add up.
+            Rounder rounder = new Rounder();
+            List<Share> roundedShares = rounder.RoundShares(rawShares, roundingMode);
+            return roundedShares;
         }
     }
 }

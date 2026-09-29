@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using LunchSplit;
 
@@ -76,6 +77,64 @@ namespace LunchSplitTests
 
             // Assert
             Assert.ThrowsExactly<ArgumentOutOfRangeException>(calculate);
+        }
+
+        [TestMethod]
+        public void CalculateShares_EqualSplit_ApportionsEvenly()
+        {
+            // Arrange
+            Splitter splitter = new Splitter();
+            Bill bill = new Bill(90.00m, 0.00m, TipMode.None, 0.00m);
+            List<Attendee> attendees = new List<Attendee>();
+            attendees.Add(new Attendee("Ana", 1, true));
+            attendees.Add(new Attendee("Ben", 1, true));
+            attendees.Add(new Attendee("Cam", 1, true));
+
+            // Act
+            List<Share> shares = splitter.CalculateShares(bill, attendees, RoundingMode.Bankers);
+
+            // Assert
+            Assert.AreEqual(30.00m, shares[0].Amount);
+            Assert.AreEqual(30.00m, shares[1].Amount);
+            Assert.AreEqual(30.00m, shares[2].Amount);
+        }
+
+        [TestMethod]
+        public void CalculateShares_ProportionalSplit_ApportionsWeighted()
+        {
+            // Arrange
+            Splitter splitter = new Splitter();
+            Bill bill = new Bill(90.00m, 0.00m, TipMode.None, 0.00m);
+            List<Attendee> attendees = new List<Attendee>();
+            attendees.Add(new Attendee("Ana", 2, true));
+            attendees.Add(new Attendee("Ben", 1, true));
+
+            // Act
+            List<Share> shares = splitter.CalculateShares(bill, attendees, RoundingMode.Bankers);
+
+            // Assert
+            Assert.AreEqual(60.00m, shares[0].Amount);
+            Assert.AreEqual(30.00m, shares[1].Amount);
+        }
+
+        [TestMethod]
+        public void CalculateShares_ExcludedAttendee_ApportionsZero()
+        {
+            // Arrange
+            Splitter splitter = new Splitter();
+            Bill bill = new Bill(90.00m, 0.00m, TipMode.None, 0.00m);
+            List<Attendee> attendees = new List<Attendee>();
+            attendees.Add(new Attendee("Ana", 1, true));
+            attendees.Add(new Attendee("Ben", 1, false));
+            attendees.Add(new Attendee("Cam", 1, true));
+
+            // Act
+            List<Share> shares = splitter.CalculateShares(bill, attendees, RoundingMode.Bankers);
+
+            // Assert
+            Assert.AreEqual(45.00m, shares[0].Amount);
+            Assert.AreEqual(0.00m, shares[1].Amount);
+            Assert.AreEqual(45.00m, shares[2].Amount);
         }
     }
 }
