@@ -136,5 +136,83 @@ namespace LunchSplitTests
             Assert.AreEqual(0.00m, shares[1].Amount);
             Assert.AreEqual(45.00m, shares[2].Amount);
         }
+
+        [TestMethod]
+        public void CalculateShares_TaxAndPercentTip_ApportionsTotal()
+        {
+            // Arrange
+            Splitter splitter = new Splitter();
+            Bill bill = new Bill(100.00m, 13.00m, TipMode.Percent, 15.00m);
+            List<Attendee> attendees = new List<Attendee>();
+            attendees.Add(new Attendee("Ana", 1, true));
+            attendees.Add(new Attendee("Ben", 1, true));
+
+            // Act
+            List<Share> shares = splitter.CalculateShares(bill, attendees, RoundingMode.Bankers);
+
+            // Assert
+            Assert.AreEqual(64.00m, shares[0].Amount);
+            Assert.AreEqual(64.00m, shares[1].Amount);
+            Assert.AreEqual(128.00m, shares[0].Amount + shares[1].Amount);
+        }
+
+        [TestMethod]
+        public void CalculateShares_TaxAndFixedTip_ApportionsTotal()
+        {
+            // Arrange
+            Splitter splitter = new Splitter();
+            Bill bill = new Bill(100.00m, 13.00m, TipMode.Fixed, 20.00m);
+            List<Attendee> attendees = new List<Attendee>();
+            attendees.Add(new Attendee("Ana", 1, true));
+            attendees.Add(new Attendee("Ben", 1, true));
+
+            // Act
+            List<Share> shares = splitter.CalculateShares(bill, attendees, RoundingMode.Bankers);
+
+            // Assert
+            Assert.AreEqual(66.50m, shares[0].Amount);
+            Assert.AreEqual(66.50m, shares[1].Amount);
+            Assert.AreEqual(133.00m, shares[0].Amount + shares[1].Amount);
+        }
+
+        [TestMethod]
+        public void CalculateShares_AllAttendeesExcluded_ThrowsException()
+        {
+            // Arrange
+            Splitter splitter = new Splitter();
+            Bill bill = new Bill(90.00m, 0.00m, TipMode.None, 0.00m);
+            List<Attendee> attendees = new List<Attendee>();
+            attendees.Add(new Attendee("Ana", 1, false));
+            attendees.Add(new Attendee("Ben", 1, false));
+
+            // Act
+            Action calculate = delegate ()
+            {
+                splitter.CalculateShares(bill, attendees, RoundingMode.Bankers);
+            };
+
+            // Assert
+            Assert.ThrowsExactly<InvalidOperationException>(calculate);
+        }
+
+        [TestMethod]
+        public void CalculateShares_TotalWeightsZero_ThrowsException()
+        {
+            // Arrange
+            Splitter splitter = new Splitter();
+            Bill bill = new Bill(90.00m, 0.00m, TipMode.None, 0.00m);
+            List<Attendee> attendees = new List<Attendee>();
+            attendees.Add(new Attendee("Ana", 0, true));
+            attendees.Add(new Attendee("Ben", 0, true));
+
+            // Act
+            Action calculate = delegate ()
+            {
+                splitter.CalculateShares(bill, attendees, RoundingMode.Bankers);
+            };
+
+            // Assert
+            Assert.ThrowsExactly<InvalidOperationException>(calculate);
+        }
     }
 }

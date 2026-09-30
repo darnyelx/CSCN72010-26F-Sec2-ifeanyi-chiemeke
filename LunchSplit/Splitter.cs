@@ -47,15 +47,30 @@ namespace LunchSplit
             decimal grandTotal = bill.Subtotal + bill.Tax + tip;
 
             // Step 1: only included people with a weight count toward the split.
+            int includedCount = 0;
             int totalWeight = 0;
 
             for (int i = 0; i < attendees.Count; i++)
             {
                 Attendee person = attendees[i];
-                if (person.Included && person.Weight > 0)
+                if (person.Included)
                 {
-                    totalWeight = totalWeight + person.Weight;
+                    includedCount = includedCount + 1;
+                    if (person.Weight > 0)
+                    {
+                        totalWeight = totalWeight + person.Weight;
+                    }
                 }
+            }
+
+            if (includedCount == 0)
+            {
+                throw new InvalidOperationException("At least one person must be included.");
+            }
+
+            if (totalWeight == 0)
+            {
+                throw new InvalidOperationException("Total weight cannot be zero.");
             }
 
             // Step 2: each included person gets their fraction of the total.
