@@ -214,5 +214,18 @@ namespace LunchSplitTests
             // Assert
             Assert.ThrowsExactly<InvalidOperationException>(calculate);
         }
+
+        [TestMethod]
+        public void CalculateShares_PaymentRequest_ValidatesStripeMock()
+        {
+            // Arrange
+            // A Stripe payment request is a later feature, so this test stays red on purpose.
+
+            // Act
+            // There is no Stripe gateway yet.
+
+            // Assert
+            Assert.Fail("Stripe payment requests are not built yet.");
+        }
     }
 }
