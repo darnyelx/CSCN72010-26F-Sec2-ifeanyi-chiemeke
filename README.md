@@ -21,8 +21,17 @@ dotnet build
 dotnet run --project LunchSplit
 ```
 
+That prints one sample receipt for a $100.00 bill with $13.00 tax and a 15 percent tip.
+
 ## Test
 
 ```
 dotnet test
 ```
+
+Two tests are supposed to fail until a later assignment:
+
+- `Format_CsvReceiptExporter_MatchesSchema`
+- `CalculateShares_PaymentRequest_ValidatesStripeMock`
+
+The other tests should pass.
