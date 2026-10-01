@@ -11,7 +11,7 @@ namespace LunchSplit
         {
             Splitter splitter = new Splitter();
             decimal tip = splitter.ComputeTip(bill.Subtotal, bill.TipMode, bill.TipInput);
-            decimal total = bill.Subtotal + bill.Tax + tip;
+            decimal total = bill.GrandTotal;
             DateTime created = DateTime.Now;
 
             string receipt = "";

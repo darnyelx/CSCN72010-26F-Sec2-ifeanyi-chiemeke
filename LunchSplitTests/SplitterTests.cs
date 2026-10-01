@@ -153,7 +153,8 @@ namespace LunchSplitTests
             // Assert
             Assert.AreEqual(64.00m, shares[0].Amount);
             Assert.AreEqual(64.00m, shares[1].Amount);
-            Assert.AreEqual(128.00m, shares[0].Amount + shares[1].Amount);
+            Assert.AreEqual(128.00m, bill.GrandTotal);
+            Assert.AreEqual(bill.GrandTotal, shares[0].Amount + shares[1].Amount);
         }
 
         [TestMethod]
@@ -172,7 +173,8 @@ namespace LunchSplitTests
             // Assert
             Assert.AreEqual(66.50m, shares[0].Amount);
             Assert.AreEqual(66.50m, shares[1].Amount);
-            Assert.AreEqual(133.00m, shares[0].Amount + shares[1].Amount);
+            Assert.AreEqual(133.00m, bill.GrandTotal);
+            Assert.AreEqual(bill.GrandTotal, shares[0].Amount + shares[1].Amount);
         }
 
         [TestMethod]

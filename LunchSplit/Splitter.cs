@@ -43,8 +43,7 @@ namespace LunchSplit
         // Splits the grand total. An excluded person gets $0.00.
         public List<Share> CalculateShares(Bill bill, List<Attendee> attendees, RoundingMode roundingMode)
         {
-            decimal tip = ComputeTip(bill.Subtotal, bill.TipMode, bill.TipInput);
-            decimal grandTotal = bill.Subtotal + bill.Tax + tip;
+            decimal grandTotal = bill.GrandTotal;
 
             // Step 1: only included people with a weight count toward the split.
             int includedCount = 0;
