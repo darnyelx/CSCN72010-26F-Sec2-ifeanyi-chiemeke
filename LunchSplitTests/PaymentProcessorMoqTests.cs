@@ -50,5 +50,23 @@ namespace LunchSplitTests
                 It.Is<PaymentRequest>(payment => payment.Amount == 37.42m)),
                 Times.Once);
         }
+
+        [TestMethod]
+        [TestCategory("M3-05")]
+        public async Task ProcessPaymentAsync_ForZeroDollarRequest_NeverInvokesGateway()
+        {
+            Mock<IPaymentProcessor> processor = new Mock<IPaymentProcessor>();
+            PaymentManager manager = new PaymentManager(processor.Object);
+
+            PaymentResult result = await manager.ProcessPaymentAsync(new PaymentRequest(
+                0.00m,
+                "CAD",
+                "m3-05-zero",
+                "cnon:card-nonce-ok"));
+
+            Assert.IsFalse(result.IsSuccess);
+            Assert.AreEqual("ZERO_AMOUNT", result.ErrorCode);
+            processor.Verify(service => service.ProcessPaymentAsync(It.IsAny<PaymentRequest>()), Times.Never);
+        }
     }
 }
