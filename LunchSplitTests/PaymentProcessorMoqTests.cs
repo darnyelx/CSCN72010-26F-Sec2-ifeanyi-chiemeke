@@ -27,5 +27,28 @@ namespace LunchSplitTests
                     "m3-03-timeout",
                     "cnon:card-nonce-ok")));
         }
+
+        [TestMethod]
+        [TestCategory("M3-04")]
+        public async Task ProcessPaymentAsync_ForwardsTheExactDollarAmount()
+        {
+            Mock<IPaymentProcessor> processor = new Mock<IPaymentProcessor>();
+            processor
+                .Setup(service => service.ProcessPaymentAsync(It.IsAny<PaymentRequest>()))
+                .ReturnsAsync(new PaymentResult { IsSuccess = true });
+
+            PaymentManager manager = new PaymentManager(processor.Object);
+            PaymentRequest request = new PaymentRequest(
+                37.42m,
+                "CAD",
+                "m3-04-amount",
+                "cnon:card-nonce-ok");
+
+            await manager.ProcessPaymentAsync(request);
+
+            processor.Verify(service => service.ProcessPaymentAsync(
+                It.Is<PaymentRequest>(payment => payment.Amount == 37.42m)),
+                Times.Once);
+        }
     }
 }
