@@ -1,4 +1,5 @@
 using System.Net.Http;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using LunchSplit;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -67,6 +68,30 @@ namespace LunchSplitTests
             Assert.IsFalse(result.IsSuccess);
             Assert.AreEqual("ZERO_AMOUNT", result.ErrorCode);
             processor.Verify(service => service.ProcessPaymentAsync(It.IsAny<PaymentRequest>()), Times.Never);
+        }
+
+        [TestMethod]
+        [TestCategory("M3-06")]
+        public async Task ProcessBatchAsync_ForFourAttendees_InvokesGatewayFourTimes()
+        {
+            Mock<IPaymentProcessor> processor = new Mock<IPaymentProcessor>();
+            processor
+                .Setup(service => service.ProcessPaymentAsync(It.IsAny<PaymentRequest>()))
+                .ReturnsAsync(new PaymentResult { IsSuccess = true });
+
+            PaymentManager manager = new PaymentManager(processor.Object);
+            List<PaymentRequest> requests = new List<PaymentRequest>
+            {
+                new PaymentRequest(10.00m, "CAD", "m3-06-1", "cnon:card-nonce-ok"),
+                new PaymentRequest(20.00m, "CAD", "m3-06-2", "cnon:card-nonce-ok"),
+                new PaymentRequest(30.00m, "CAD", "m3-06-3", "cnon:card-nonce-ok"),
+                new PaymentRequest(40.00m, "CAD", "m3-06-4", "cnon:card-nonce-ok")
+            };
+
+            PaymentBatchResult result = await manager.ProcessBatchAsync(requests);
+
+            Assert.AreEqual(4, result.SuccessCount);
+            processor.Verify(service => service.ProcessPaymentAsync(It.IsAny<PaymentRequest>()), Times.Exactly(4));
         }
     }
 }
