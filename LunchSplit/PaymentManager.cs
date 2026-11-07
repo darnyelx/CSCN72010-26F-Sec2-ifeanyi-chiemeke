@@ -1,4 +1,5 @@
 using System.Net.Http;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace LunchSplit
@@ -35,6 +36,31 @@ namespace LunchSplit
                     "The payment gateway could not be reached.",
                     exception);
             }
+        }
+
+        public async Task<PaymentBatchResult> ProcessBatchAsync(
+            IReadOnlyList<PaymentRequest> requests)
+        {
+            List<PaymentResult> results = new List<PaymentResult>();
+
+            for (int i = 0; i < requests.Count; i++)
+            {
+                try
+                {
+                    results.Add(await ProcessPaymentAsync(requests[i]));
+                }
+                catch (PaymentGatewayTimeoutException exception)
+                {
+                    results.Add(new PaymentResult
+                    {
+                        IsSuccess = false,
+                        ErrorCode = "GATEWAY_TIMEOUT",
+                        ErrorMessage = exception.Message
+                    });
+                }
+            }
+
+            return new PaymentBatchResult(results);
         }
     }
 }
