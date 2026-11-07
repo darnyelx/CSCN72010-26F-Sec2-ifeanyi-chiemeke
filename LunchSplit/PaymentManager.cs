@@ -15,6 +15,16 @@ namespace LunchSplit
 
         public async Task<PaymentResult> ProcessPaymentAsync(PaymentRequest request)
         {
+            if (request.Amount == 0.00m)
+            {
+                return new PaymentResult
+                {
+                    IsSuccess = false,
+                    ErrorCode = "ZERO_AMOUNT",
+                    ErrorMessage = "A zero-dollar payment does not require gateway processing."
+                };
+            }
+
             try
             {
                 return await processor.ProcessPaymentAsync(request);
