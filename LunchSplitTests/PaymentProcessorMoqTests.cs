@@ -93,5 +93,31 @@ namespace LunchSplitTests
             Assert.AreEqual(4, result.SuccessCount);
             processor.Verify(service => service.ProcessPaymentAsync(It.IsAny<PaymentRequest>()), Times.Exactly(4));
         }
+
+        [TestMethod]
+        [TestCategory("M3-07")]
+        public async Task ProcessBatchAsync_WhenSecondAttendeeFails_ReportsTwoSuccessesAndOneFailure()
+        {
+            Mock<IPaymentProcessor> processor = new Mock<IPaymentProcessor>();
+            processor
+                .Setup(service => service.ProcessPaymentAsync(It.IsAny<PaymentRequest>()))
+                .ReturnsAsync((PaymentRequest request) => request.IdempotencyKey == "m3-07-2"
+                    ? new PaymentResult { IsSuccess = false, ErrorCode = "CARD_DECLINED" }
+                    : new PaymentResult { IsSuccess = true });
+
+            PaymentManager manager = new PaymentManager(processor.Object);
+            List<PaymentRequest> requests = new List<PaymentRequest>
+            {
+                new PaymentRequest(10.00m, "CAD", "m3-07-1", "cnon:card-nonce-ok"),
+                new PaymentRequest(20.00m, "CAD", "m3-07-2", "cnon:card-nonce-declined"),
+                new PaymentRequest(30.00m, "CAD", "m3-07-3", "cnon:card-nonce-ok")
+            };
+
+            PaymentBatchResult result = await manager.ProcessBatchAsync(requests);
+
+            Assert.AreEqual(2, result.SuccessCount);
+            Assert.AreEqual(1, result.FailureCount);
+            Assert.AreEqual("CARD_DECLINED", result.Results[1].ErrorCode);
+        }
     }
 }
