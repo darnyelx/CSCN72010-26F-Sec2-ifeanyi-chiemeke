@@ -42,6 +42,23 @@ namespace LunchSplitTests
             Assert.AreEqual("CARD_DECLINED", result.ErrorCode);
         }
 
+        [TestMethod]
+        [TestCategory("Integration")]
+        [TestCategory("M3-08")]
+        public async Task ProcessPaymentAsync_WithUnsupportedCurrency_ReturnsValidationFailure()
+        {
+            SquarePaymentService service = CreateConfiguredService();
+
+            PaymentResult result = await service.ProcessPaymentAsync(new PaymentRequest(
+                1.00m,
+                "EUR",
+                Guid.NewGuid().ToString(),
+                "cnon:card-nonce-ok"));
+
+            Assert.IsFalse(result.IsSuccess);
+            Assert.IsFalse(string.IsNullOrWhiteSpace(result.ErrorCode));
+        }
+
         private static SquarePaymentService CreateConfiguredService()
         {
             string accessToken = Environment.GetEnvironmentVariable("SQUARE_SANDBOX_ACCESS_TOKEN");
