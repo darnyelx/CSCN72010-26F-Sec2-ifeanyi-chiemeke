@@ -25,6 +25,23 @@ namespace LunchSplitTests
             Assert.IsFalse(string.IsNullOrWhiteSpace(result.TransactionId));
         }
 
+        [TestMethod]
+        [TestCategory("Integration")]
+        [TestCategory("M3-02")]
+        public async Task ProcessPaymentAsync_WithDeclinedMagicNonce_ReturnsCardDeclined()
+        {
+            SquarePaymentService service = CreateConfiguredService();
+
+            PaymentResult result = await service.ProcessPaymentAsync(new PaymentRequest(
+                1.00m,
+                "CAD",
+                Guid.NewGuid().ToString(),
+                "cnon:card-nonce-declined"));
+
+            Assert.IsFalse(result.IsSuccess);
+            Assert.AreEqual("CARD_DECLINED", result.ErrorCode);
+        }
+
         private static SquarePaymentService CreateConfiguredService()
         {
             string accessToken = Environment.GetEnvironmentVariable("SQUARE_SANDBOX_ACCESS_TOKEN");
