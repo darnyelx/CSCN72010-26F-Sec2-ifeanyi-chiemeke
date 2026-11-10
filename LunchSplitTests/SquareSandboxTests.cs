@@ -59,6 +59,27 @@ namespace LunchSplitTests
             Assert.IsFalse(string.IsNullOrWhiteSpace(result.ErrorCode));
         }
 
+        [TestMethod]
+        [TestCategory("Integration")]
+        [TestCategory("M3-09")]
+        public async Task ProcessPaymentAsync_WithDuplicateIdempotencyKey_ReturnsSameTransaction()
+        {
+            SquarePaymentService service = CreateConfiguredService();
+            string idempotencyKey = Guid.NewGuid().ToString();
+            PaymentRequest request = new PaymentRequest(
+                1.00m,
+                "CAD",
+                idempotencyKey,
+                "cnon:card-nonce-ok");
+
+            PaymentResult first = await service.ProcessPaymentAsync(request);
+            PaymentResult second = await service.ProcessPaymentAsync(request);
+
+            Assert.IsTrue(first.IsSuccess);
+            Assert.IsTrue(second.IsSuccess);
+            Assert.AreEqual(first.TransactionId, second.TransactionId);
+        }
+
         private static SquarePaymentService CreateConfiguredService()
         {
             string accessToken = Environment.GetEnvironmentVariable("SQUARE_SANDBOX_ACCESS_TOKEN");
