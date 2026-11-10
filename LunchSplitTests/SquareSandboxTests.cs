@@ -80,6 +80,23 @@ namespace LunchSplitTests
             Assert.AreEqual(first.TransactionId, second.TransactionId);
         }
 
+        [TestMethod]
+        [TestCategory("Integration")]
+        [TestCategory("M3-10")]
+        public async Task GetTransactionStatusAsync_ForCompletedPayment_ReturnsCompleted()
+        {
+            SquarePaymentService service = CreateConfiguredService();
+            PaymentResult payment = await service.ProcessPaymentAsync(new PaymentRequest(
+                1.00m,
+                "CAD",
+                Guid.NewGuid().ToString(),
+                "cnon:card-nonce-ok"));
+
+            PaymentStatus status = await service.GetTransactionStatusAsync(payment.TransactionId);
+
+            Assert.AreEqual(PaymentStatus.Completed, status);
+        }
+
         private static SquarePaymentService CreateConfiguredService()
         {
             string accessToken = Environment.GetEnvironmentVariable("SQUARE_SANDBOX_ACCESS_TOKEN");
