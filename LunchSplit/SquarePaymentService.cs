@@ -66,7 +66,8 @@ namespace LunchSplit
                 {
                     IsSuccess = false,
                     ErrorCode = error == null ? null : error.Code.ToString(),
-                    ErrorMessage = error?.Detail ?? exception.Message
+                    ErrorMessage = error?.Detail ?? exception.Message,
+                    StatusCode = (System.Net.HttpStatusCode)exception.StatusCode
                 };
             }
         }
