@@ -1,4 +1,5 @@
 using System;
+using System.Net;
 using System.Threading.Tasks;
 using LunchSplit;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -57,6 +58,7 @@ namespace LunchSplitTests
 
             Assert.IsFalse(result.IsSuccess);
             Assert.IsFalse(string.IsNullOrWhiteSpace(result.ErrorCode));
+            Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
         }
 
         [TestMethod]
