@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
 
-namespace LunchSplit
+namespace LunchSplit.Payments
 {
     // Keeps payment orchestration independent from Square or another gateway.
     public interface IPaymentProcessor

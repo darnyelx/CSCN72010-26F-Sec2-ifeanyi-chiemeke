@@ -1,4 +1,4 @@
-namespace LunchSplit
+namespace LunchSplit.Payments
 {
     // Domain request sent to a payment gateway.
     public sealed class PaymentRequest

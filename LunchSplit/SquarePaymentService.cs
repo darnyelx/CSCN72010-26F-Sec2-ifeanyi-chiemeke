@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using Square;
 using Square.Payments;
 
-namespace LunchSplit
+namespace LunchSplit.Payments
 {
     // Infrastructure adapter that keeps Square SDK types outside the domain layer.
     public sealed class SquarePaymentService : IPaymentProcessor

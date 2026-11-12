@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace LunchSplit
+namespace LunchSplit.Payments
 {
     // Summary of independent payment attempts in one attendee batch.
     public sealed class PaymentBatchResult

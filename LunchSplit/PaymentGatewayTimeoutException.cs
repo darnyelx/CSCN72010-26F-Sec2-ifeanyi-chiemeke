@@ -1,6 +1,6 @@
 using System;
 
-namespace LunchSplit
+namespace LunchSplit.Payments
 {
     public sealed class PaymentGatewayTimeoutException : Exception
     {

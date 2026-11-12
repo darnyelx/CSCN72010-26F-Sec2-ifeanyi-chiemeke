@@ -2,6 +2,7 @@ using System;
 using System.Net;
 using System.Threading.Tasks;
 using LunchSplit;
+using LunchSplit.Payments;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace LunchSplitTests

@@ -1,4 +1,4 @@
-namespace LunchSplit
+namespace LunchSplit.Payments
 {
     public enum PaymentStatus
     {

@@ -2,6 +2,7 @@
 
 - **SolutionFile**: `LunchSplit.slnx`
 - **CoreSourceRoot**: `LunchSplit`
+- **PaymentNamespace**: `LunchSplit.Payments`
 - **InfraSourceRoot**: `LunchSplit` (`SquarePaymentService.cs`)
 - **TestProjectRoot**: `LunchSplitTests`
 - **Tier1TestClass**: `LunchSplitTests/SquareSandboxTests.cs`

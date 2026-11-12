@@ -2,7 +2,7 @@ using System.Net.Http;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace LunchSplit
+namespace LunchSplit.Payments
 {
     // Coordinates payment use cases without exposing gateway-specific exceptions.
     public sealed class PaymentManager

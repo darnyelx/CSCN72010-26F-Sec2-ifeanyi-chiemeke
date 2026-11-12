@@ -1,6 +1,6 @@
 using System.Net;
 
-namespace LunchSplit
+namespace LunchSplit.Payments
 {
     // Gateway-independent result returned after a payment attempt.
     public sealed class PaymentResult
