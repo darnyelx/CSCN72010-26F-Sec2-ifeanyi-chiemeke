@@ -9,12 +9,14 @@ using Moq;
 namespace LunchSplitTests
 {
     [TestClass]
+    // These tests keep the payment manager offline so each gateway scenario is predictable.
     public class PaymentProcessorMoqTests
     {
         [TestMethod]
         [TestCategory("M3-03")]
         public async Task ProcessPaymentAsync_WhenGatewayTimesOut_ThrowsPaymentGatewayTimeoutException()
         {
+            // The real gateway is replaced with a timeout so this test only checks our translation.
             Mock<IPaymentProcessor> processor = new Mock<IPaymentProcessor>();
             processor
                 .Setup(service => service.ProcessPaymentAsync(It.IsAny<PaymentRequest>()))
@@ -22,6 +24,7 @@ namespace LunchSplitTests
 
             PaymentManager manager = new PaymentManager(processor.Object);
 
+            // A network failure should be exposed as the application's payment exception.
             await Assert.ThrowsExactlyAsync<PaymentGatewayTimeoutException>(async () =>
                 await manager.ProcessPaymentAsync(new PaymentRequest(
                     25.00m,
@@ -34,6 +37,7 @@ namespace LunchSplitTests
         [TestCategory("M3-04")]
         public async Task ProcessPaymentAsync_ForwardsTheExactDollarAmount()
         {
+            // Return a successful result and focus the verification on the request sent to the gateway.
             Mock<IPaymentProcessor> processor = new Mock<IPaymentProcessor>();
             processor
                 .Setup(service => service.ProcessPaymentAsync(It.IsAny<PaymentRequest>()))
@@ -48,6 +52,7 @@ namespace LunchSplitTests
 
             await manager.ProcessPaymentAsync(request);
 
+            // Keeping the cents exact matters because this value came from a split bill.
             processor.Verify(service => service.ProcessPaymentAsync(
                 It.Is<PaymentRequest>(payment => payment.Amount == 37.42m)),
                 Times.Once);
@@ -57,6 +62,7 @@ namespace LunchSplitTests
         [TestCategory("M3-05")]
         public async Task ProcessPaymentAsync_ForZeroDollarRequest_NeverInvokesGateway()
         {
+            // A free bill is handled locally; there is no reason to create a gateway request.
             Mock<IPaymentProcessor> processor = new Mock<IPaymentProcessor>();
             PaymentManager manager = new PaymentManager(processor.Object);
 
@@ -68,6 +74,7 @@ namespace LunchSplitTests
 
             Assert.IsFalse(result.IsSuccess);
             Assert.AreEqual("ZERO_AMOUNT", result.ErrorCode);
+            // Times.Never protects the short-circuit from accidentally becoming a real charge.
             processor.Verify(service => service.ProcessPaymentAsync(It.IsAny<PaymentRequest>()), Times.Never);
         }
 
@@ -75,6 +82,7 @@ namespace LunchSplitTests
         [TestCategory("M3-06")]
         public async Task ProcessBatchAsync_ForFourAttendees_InvokesGatewayFourTimes()
         {
+            // Each attendee represents a separate payment, even though they belong to one bill.
             Mock<IPaymentProcessor> processor = new Mock<IPaymentProcessor>();
             processor
                 .Setup(service => service.ProcessPaymentAsync(It.IsAny<PaymentRequest>()))
@@ -92,6 +100,7 @@ namespace LunchSplitTests
             PaymentBatchResult result = await manager.ProcessBatchAsync(requests);
 
             Assert.AreEqual(4, result.SuccessCount);
+            // This catches both skipped attendees and accidental duplicate charges.
             processor.Verify(service => service.ProcessPaymentAsync(It.IsAny<PaymentRequest>()), Times.Exactly(4));
         }
 
@@ -99,6 +108,7 @@ namespace LunchSplitTests
         [TestCategory("M3-07")]
         public async Task ProcessBatchAsync_WhenSecondAttendeeFails_ReportsTwoSuccessesAndOneFailure()
         {
+            // Make only the middle request fail so the test proves the batch continues afterward.
             Mock<IPaymentProcessor> processor = new Mock<IPaymentProcessor>();
             processor
                 .Setup(service => service.ProcessPaymentAsync(It.IsAny<PaymentRequest>()))
@@ -118,6 +128,7 @@ namespace LunchSplitTests
 
             Assert.AreEqual(2, result.SuccessCount);
             Assert.AreEqual(1, result.FailureCount);
+            // The failed attendee should remain visible in the result rather than stopping the batch.
             Assert.AreEqual("CARD_DECLINED", result.Results[1].ErrorCode);
         }
     }
