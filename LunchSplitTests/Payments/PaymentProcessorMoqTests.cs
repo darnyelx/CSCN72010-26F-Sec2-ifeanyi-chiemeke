@@ -54,7 +54,11 @@ namespace LunchSplitTests
 
             // Keeping the cents exact matters because this value came from a split bill.
             processor.Verify(service => service.ProcessPaymentAsync(
-                It.Is<PaymentRequest>(payment => payment.Amount == 37.42m)),
+                It.Is<PaymentRequest>(payment =>
+                    payment.Amount == 37.42m &&
+                    payment.Currency == "CAD" &&
+                    payment.IdempotencyKey == "m3-04-amount" &&
+                    payment.CardNonce == "cnon:card-nonce-ok")),
                 Times.Once);
         }
 
@@ -108,13 +112,13 @@ namespace LunchSplitTests
         [TestCategory("M3-07")]
         public async Task ProcessBatchAsync_WhenSecondAttendeeFails_ReportsTwoSuccessesAndOneFailure()
         {
-            // Make only the middle request fail so the test proves the batch continues afterward.
+            // Model the gateway responses in order: first success, then decline, then success.
             Mock<IPaymentProcessor> processor = new Mock<IPaymentProcessor>();
             processor
-                .Setup(service => service.ProcessPaymentAsync(It.IsAny<PaymentRequest>()))
-                .ReturnsAsync((PaymentRequest request) => request.IdempotencyKey == "m3-07-2"
-                    ? new PaymentResult { IsSuccess = false, ErrorCode = "CARD_DECLINED" }
-                    : new PaymentResult { IsSuccess = true });
+                .SetupSequence(service => service.ProcessPaymentAsync(It.IsAny<PaymentRequest>()))
+                .ReturnsAsync(new PaymentResult { IsSuccess = true })
+                .ReturnsAsync(new PaymentResult { IsSuccess = false, ErrorCode = "CARD_DECLINED" })
+                .ReturnsAsync(new PaymentResult { IsSuccess = true });
 
             PaymentManager manager = new PaymentManager(processor.Object);
             List<PaymentRequest> requests = new List<PaymentRequest>
