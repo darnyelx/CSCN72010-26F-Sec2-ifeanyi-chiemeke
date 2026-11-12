@@ -25,6 +25,7 @@ namespace LunchSplit.Payments
             }
 
             this.locationId = locationId;
+            // Sandbox is deliberate here; production credentials should use a separate service configuration.
             client = new SquareClient(
                 accessToken,
                 new ClientOptions
@@ -39,6 +40,7 @@ namespace LunchSplit.Payments
         {
             try
             {
+                // Square expects the smallest currency unit, so dollars become cents here.
                 Square.CreatePaymentResponse response = await client.Payments.CreateAsync(
                     new CreatePaymentRequest
                     {
@@ -61,6 +63,7 @@ namespace LunchSplit.Payments
             }
             catch (SquareApiException exception)
             {
+                // Turn Square's error response into the application's gateway-neutral result.
                 Square.Error error = exception.Errors?.FirstOrDefault();
                 return new PaymentResult
                 {
@@ -74,6 +77,7 @@ namespace LunchSplit.Payments
 
         public async Task<PaymentStatus> GetTransactionStatusAsync(string transactionId)
         {
+            // The domain only exposes the statuses it needs, rather than Square's SDK type.
             Square.GetPaymentResponse response = await client.Payments.GetAsync(
                 new GetPaymentsRequest { PaymentId = transactionId });
 

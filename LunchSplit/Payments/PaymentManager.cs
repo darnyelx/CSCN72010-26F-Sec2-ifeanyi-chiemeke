@@ -16,6 +16,7 @@ namespace LunchSplit.Payments
 
         public async Task<PaymentResult> ProcessPaymentAsync(PaymentRequest request)
         {
+            // Do not send a free bill to the payment provider.
             if (request.Amount == 0.00m)
             {
                 return new PaymentResult
@@ -32,6 +33,7 @@ namespace LunchSplit.Payments
             }
             catch (HttpRequestException exception)
             {
+                // Keep transport details out of the rest of the application.
                 throw new PaymentGatewayTimeoutException(
                     "The payment gateway could not be reached.",
                     exception);
@@ -43,6 +45,7 @@ namespace LunchSplit.Payments
         {
             List<PaymentResult> results = new List<PaymentResult>();
 
+            // Each attendee is independent, so one failure should not stop the remaining payments.
             for (int i = 0; i < requests.Count; i++)
             {
                 try

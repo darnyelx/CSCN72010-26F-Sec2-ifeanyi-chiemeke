@@ -11,9 +11,9 @@ namespace LunchSplit.Payments
             CardNonce = cardNonce;
         }
 
-        public decimal Amount { get; }
-        public string Currency { get; }
-        public string IdempotencyKey { get; }
-        public string CardNonce { get; }
+        public decimal Amount { get; } // Amount in normal currency units, such as 12.50.
+        public string Currency { get; } // ISO currency code expected by the gateway.
+        public string IdempotencyKey { get; } // Lets retries reuse the same payment safely.
+        public string CardNonce { get; } // Tokenized card source returned by Square's web SDK.
     }
 }
