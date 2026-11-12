@@ -3,10 +3,10 @@
 - **SolutionFile**: `LunchSplit.slnx`
 - **CoreSourceRoot**: `LunchSplit`
 - **PaymentNamespace**: `LunchSplit.Payments`
-- **InfraSourceRoot**: `LunchSplit` (`SquarePaymentService.cs`)
+- **InfraSourceRoot**: `LunchSplit/Payments` (`SquarePaymentService.cs`)
 - **TestProjectRoot**: `LunchSplitTests`
-- **Tier1TestClass**: `LunchSplitTests/SquareSandboxTests.cs`
-- **Tier2TestClass**: `LunchSplitTests/PaymentProcessorMoqTests.cs`
+- **Tier1TestClass**: `LunchSplitTests/Payments/SquareSandboxTests.cs`
+- **Tier2TestClass**: `LunchSplitTests/Payments/PaymentProcessorMoqTests.cs`
 
 ## Sandbox configuration
 
